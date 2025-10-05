@@ -1,19 +1,23 @@
-import express from "express";
-import routes from "./routes/index.js";
-import dotenv from "dotenv";
-dotenv.config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongodb = require('./db/connect');
 
+const port = process.env.PORT || 8080;
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use("/", routes);
+app
+  .use(bodyParser.json())
+  .use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  })
+  .use('/', require('./routes'));
 
-// Add a friendly root route
-app.get("/", (req, res) => {
-  res.send("Welcome to the Contacts API! Use /contacts to get all contacts or /contacts/:id to get a single contact.");
-});
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+mongodb.initDb((err, mongodb) => {
+  if (err) {
+    console.log(err);
+  } else {
+    app.listen(port);
+    console.log(`Connected to DB and listening on ${port}`);
+  }
 });

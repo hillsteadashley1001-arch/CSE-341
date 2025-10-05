@@ -1,8 +1,6 @@
-import { Router } from "express";
-import contactsRouter from "./contacts.js";
+const express = require('express');
+const router = express.Router();
 
-const router = Router();
+router.use('/contacts', require('./contacts'))
 
-router.use("/contacts", contactsRouter);
-
-export default router;
+module.exports = router;

@@ -1,0 +1,43 @@
+# Base URL
+@baseUrl = http://localhost:3000
+# If your backend runs on port 8080 instead, uncomment the next line:
+# @baseUrl = http://localhost:8080
+
+### Root
+GET {{baseUrl}}/
+
+### List all contacts
+GET {{baseUrl}}/contacts
+
+### Create a contact
+POST {{baseUrl}}/contacts
+Content-Type: application/json
+
+{
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "email": "ada@example.com",
+  "favoriteColor": "blue",
+  "birthday": "1815-12-10"
+}
+
+### Set this to the returned id after create
+@contactId = 68e594579442059256835ada
+
+### Get single contact
+GET {{baseUrl}}/contacts/{{contactId}}
+
+### Update contact (all fields required)
+PUT {{baseUrl}}/contacts/{{contactId}}
+Content-Type: application/json
+
+{
+  "firstName": "Ada",
+  "lastName": "Byron",
+  "email": "ada.byron@example.com",
+  "favoriteColor": "teal",
+  "birthday": "1815-12-10"
+}
+
+### Delete contact
+DELETE {{baseUrl}}/contacts/{{contactId}}

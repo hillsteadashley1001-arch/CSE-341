@@ -1,10 +1,14 @@
 # Base URL
 @baseUrl = http://localhost:3000
+@contactid = 68f18a9f2b0dc040a2f338c3
 # If your backend runs on port 8080 instead, uncomment the next line:
 # @baseUrl = http://localhost:8080
 
-### Root
-GET {{baseUrl}}/
+### Swagger UI
+GET {{baseUrl}}/api-docs
+
+### Health check
+GET {{baseUrl}}
 
 ### List all contacts
 GET {{baseUrl}}/contacts
@@ -21,14 +25,14 @@ Content-Type: application/json
   "birthday": "1815-12-10"
 }
 
-### Set this to the returned id after create
-@contactId = 68e594579442059256835ada
+
+### After create returns 201, set @contactid to the returned _id above
 
 ### Get single contact
-GET {{baseUrl}}/contacts/{{contactId}}
+GET {{baseUrl}}/contacts/{{contactid}}
 
-### Update contact (all fields required)
-PUT {{baseUrl}}/contacts/{{contactId}}
+### Update contact (all fields required by this API)
+PUT {{baseUrl}}/contacts/{{contactid}}
 Content-Type: application/json
 
 {
@@ -40,4 +44,5 @@ Content-Type: application/json
 }
 
 ### Delete contact
-DELETE {{baseUrl}}/contacts/{{contactId}}
+DELETE {{baseUrl}}/contacts/{{contactid}}
+

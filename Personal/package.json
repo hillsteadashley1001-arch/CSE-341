@@ -1,29 +1,25 @@
 {
-  "name": "cse341-apicourse-code",
+  "name": "contacts-api",
   "version": "1.0.0",
-  "description": "code to give to students for the cse341 course",
+  "description": "CSE 341 Contacts API with Swagger",
+  "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nathanbirch/cse341-apiCourse-code.git"
+  "engines": {
+    "node": ">=18"
   },
-  "author": "Nathan Birch",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nathanbirch/cse341-apiCourse-code/issues"
-  },
-  "homepage": "https://github.com/nathanbirch/cse341-apiCourse-code#readme",
   "dependencies": {
-    "dotenv": "^17.2.3",
-    "express": "^4.17.3",
-    "mongodb": "^6.20.0"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.0"
   }
 }

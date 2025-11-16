@@ -1,92 +1,68 @@
+// routes/index.js
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers');
 const { body, validationResult } = require('express-validator');
-const createError = require('http-errors');
-const mongodb = require('../db/connect');
-const ObjectId = require('mongodb').ObjectId;
+const controller = require('../controllers');
 
-// GET all items
+// Helper to surface validation errors (logs + response)
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const details = errors.array().map(e => ({
+      field: e.path,
+      value: e.value,
+      msg: e.msg,
+      location: e.location
+    }));
+    console.log('Validation errors:', JSON.stringify(details, null, 2));
+    const err = new Error('Validation failed');
+    err.status = 400;
+    err.errors = details;
+    return next(err);
+  }
+  next();
+};
+
+// POST: require name; price optional but must be number > 0 if provided
+const validateItemCreate = [
+  body('name')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('name is required'),
+  body('price')
+    .optional()
+    .isFloat({ gt: 0 })
+    .withMessage('price must be a number > 0'),
+  handleValidation
+];
+
+// PUT: allow partial updates; if present, fields must be valid
+// Also block entirely empty body before reaching the controller
+const blockEmptyBodyOnUpdate = (req, res, next) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    const err = new Error('No fields to update');
+    err.status = 400;
+    return next(err);
+  }
+  next();
+};
+
+const validateItemUpdate = [
+  body('name')
+    .optional()
+    .notEmpty()
+    .withMessage('name cannot be empty'),
+  body('price')
+    .optional()
+    .isFloat({ gt: 0 })
+    .withMessage('price must be a number > 0'),
+  handleValidation
+];
+
+// Items routes
 router.get('/items', controller.getAllItems);
-
-// GET a single item by ID
 router.get('/items/:id', controller.getItemById);
-
-// POST a new item
-router.post('/items', controller.createItem);
-
-// PUT route to update a contact by ID
-router.put('/:id', 
-  // Validation middleware
-  [
-    body('firstName').notEmpty().withMessage('First name is required'),
-    body('lastName').notEmpty().withMessage('Last name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('favoriteColor').notEmpty().withMessage('Favorite color is required'),
-    body('birthday').notEmpty().withMessage('Birthday is required')
-  ],
-  async (req, res, next) => {
-    try {
-      // Check for validation errors
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      // Verify ID format
-      const id = req.params.id;
-      if (!ObjectId.isValid(id)) {
-        return next(createError(400, 'Invalid contact ID format'));
-      }
-
-      const contact = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        favoriteColor: req.body.favoriteColor,
-        birthday: req.body.birthday
-      };
-
-      const response = await mongodb
-        .getDb()
-        .db()
-        .collection('contacts')
-        .replaceOne({ _id: new ObjectId(id) }, contact);
-
-      if (response.modifiedCount > 0) {
-        res.status(204).send(); // No content response on success
-      } else {
-        next(createError(404, 'Contact not found or no changes made'));
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-// DELETE route to remove a contact by ID
-router.delete('/:id', async (req, res, next) => {
-  try {
-    // Verify ID format
-    const id = req.params.id;
-    if (!ObjectId.isValid(id)) {
-      return next(createError(400, 'Invalid contact ID format'));
-    }
-
-    const response = await mongodb
-      .getDb()
-      .db()
-      .collection('contacts')
-      .deleteOne({ _id: new ObjectId(id) });
-
-    if (response.deletedCount > 0) {
-      res.status(204).send(); // No content response on success
-    } else {
-      next(createError(404, 'Contact not found'));
-    }
-  } catch (err) {
-    next(err);
-  }
-});
+router.post('/items', validateItemCreate, controller.createItem);
+router.put('/items/:id', blockEmptyBodyOnUpdate, validateItemUpdate, controller.updateItem);
+router.delete('/items/:id', controller.deleteItem);
 
 module.exports = router;
